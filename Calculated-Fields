@@ -1,0 +1,33 @@
+Calculated Fields
+
+///////Customer Fields////////
+Total Customers
+  COUNTD(IF [Matched_or_Unmatched]="MATCHED" THEN [Customer Link ID] END)
+  + COUNT(IF [Matched_or_Unmatched]="UNMATCHED" THEN [Customer Link ID] END)
+
+Matched IDL Customers
+  COUNTD(IF [Matched_or_Unmatched]="MATCHED" THEN [Customer Link ID] END)
+
+///////Adjusted Sales////////
+**this is necessary when you do a left join so that numeric measures are not overstated
+**REMEMBER: everything needs to happen inside the equation
+**You can use AVG() for sales/customer & COUNT for customer metrics
+  
+  Adj. Sales > 0 (only necessary if returns are included, but shouldn't really be included)
+    { FIXED [Customer Link ID]: 
+    (IF SUM(Sales)>0 THEN SUM([Sales]) END)/
+    (IF SUM(Sales)>0 THEN COUNT([Customer Link ID]) END)}
+ 
+  Adj. Sales > 0 from media
+    { FIXED [Customer Link ID]: 
+    SUM(IF ([Sales]>0 AND [saw media]=TRUE) 
+        THEN [Sales] END)/
+    COUNT(IF ([Sales]>0 AND [saw media]=TRUE) 
+        THEN [Customer Link ID] END)}
+        
+  SUM Adj. Total Sales > 0
+  (hopefully you have a 'total' column but if not, use this)
+    SUM(ZN([Adj. Online Sales > 0])) + SUM(ZN([Adj. Store Sales > 0]))
+    
+  CNT Adj. Total Sales > 0
+    COUNTD( IF ([Store Sales]>0 OR[Online Sales]>0) THEN [Customer Link ID] END)
